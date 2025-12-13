@@ -1,0 +1,101 @@
+body.app-body {
+  min-height: 100vh;
+  background-color: var(--color-bg-soft);
+}
+
+.app-topbar {
+  background: linear-gradient(90deg, #0ea5e9, #0284c7);
+  color: #fff;
+}
+
+.app-topbar .navbar-brand {
+  color: #fff;
+}
+
+.app-main {
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.stats-card {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+}
+
+.stats-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.stats-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.stats-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(2, 132, 199, 0.08);
+  color: var(--color-primary);
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.table-modern thead th {
+  background-color: #e5f3ff;
+  border-bottom-width: 1px;
+}
+
+.table-modern tbody tr:hover {
+  background-color: rgba(191, 219, 254, 0.4);
+}
+
+.app-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.app-role-pill {
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+/* Filter cards used above tables on dashboards */
+.filter-card {
+  margin-bottom: 1rem;
+}
+
+.filter-card .form-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.filter-results-count {
+  font-size: 0.8rem;
+}
+
+/* Simple visual feedback when filters are applied */
+.table-modern.table-filtering {
+  opacity: 0.6;
+  transition: opacity 150ms ease-in-out;
+}

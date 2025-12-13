@@ -1,0 +1,16 @@
+.admin-dashboard .stats-card {
+  border-top: 4px solid #0ea5e9;
+}
+
+.admin-dashboard .stats-card-users {
+  border-top-color: #22c55e;
+}
+
+.admin-dashboard .stats-card-doctors {
+  border-top-color: #f97316;
+}
+
+.admin-dashboard .stats-card-secretaries {
+  border-top-color: #6366f1;
+}
+

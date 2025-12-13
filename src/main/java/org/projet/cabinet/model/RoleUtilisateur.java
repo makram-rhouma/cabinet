@@ -1,0 +1,1 @@
+package org.projet.cabinet.model; public enum RoleUtilisateur { ADMIN, SECRETAIRE, MEDECIN, PATIENT; }

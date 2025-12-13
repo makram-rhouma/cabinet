@@ -1,0 +1,39 @@
+.patient-dashboard .app-topbar {
+  background: linear-gradient(90deg, #facc15, #eab308);
+  color: #111827;
+}
+
+.patient-dashboard .app-topbar .navbar-brand {
+  color: #111827;
+}
+
+.patient-dashboard .stats-card {
+  border-top: 4px solid #facc15;
+}
+
+.patient-dashboard .stats-icon-circle {
+  background-color: rgba(250, 204, 21, 0.16);
+  color: #92400e;
+}
+
+.patient-dashboard .btn-primary {
+  background-color: #facc15;
+  border-color: #eab308;
+  color: #111827;
+}
+
+.patient-dashboard .btn-primary:hover {
+  background-color: #eab308;
+  border-color: #d97706;
+  color: #111827;
+}
+
+.patient-dashboard .badge-patient {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background-color: #fef3c7;
+  color: #92400e;
+}

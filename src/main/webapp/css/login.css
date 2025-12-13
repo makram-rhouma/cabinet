@@ -1,0 +1,97 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  background: radial-gradient(circle at top left, #0ea5e9 0, #0f172a 55%, #020617 100%);
+  color: #fff;
+}
+
+.login-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+}
+
+.login-hero {
+  flex: 1.1;
+  position: relative;
+  background-image: url("../img/login-hero.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.login-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(8, 47, 73, 0.7));
+}
+
+.login-hero-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3rem 4vw;
+}
+
+.login-hero-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.login-hero-subtitle {
+  max-width: 28rem;
+  font-size: 0.98rem;
+  opacity: 0.9;
+}
+
+.login-card-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 3vw;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 18px;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.55);
+  border: none;
+  overflow: hidden;
+}
+
+.login-card-header {
+  padding: 1.5rem 1.75rem 0.75rem;
+}
+
+.login-card-body {
+  padding: 0 1.75rem 1.75rem;
+}
+
+.login-footer-text {
+  font-size: 0.8rem;
+}
+
+.login-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.25);
+  border-color: #0ea5e9;
+}
+
+@media (max-width: 768px) {
+  .login-shell {
+    flex-direction: column;
+  }
+  .login-hero {
+    flex: none;
+    height: 40vh;
+  }
+  .login-card-wrapper {
+    padding-top: 1.5rem;
+  }
+}
+
