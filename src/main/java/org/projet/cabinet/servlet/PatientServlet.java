@@ -164,6 +164,7 @@ public class PatientServlet extends HttpServlet {
         int idPatient = getIdPatient(req);
         req.setAttribute("rendezVous", rendezVousService.trouverParPatientId(idPatient));
         req.setAttribute("visites", visiteService.trouverParPatientId(idPatient));
+        req.setAttribute("bilans", bilanService.trouverParPatientId(idPatient));
         req.getRequestDispatcher("/jsp/patient/historique.jsp").forward(req, resp);
     }
 
@@ -172,6 +173,11 @@ public class PatientServlet extends HttpServlet {
         int idPatient = getIdPatient(req);
         String idRdvStr = req.getParameter("idRendezVous");
         Integer idRdv = !isBlank(idRdvStr) ? Integer.parseInt(idRdvStr) : null;
+
+        if (idRdv == null) {
+            resp.sendRedirect(req.getContextPath() + "/patient?action=historique");
+            return;
+        }
 
         visiteService.enregistrerVisite(idPatient, idRdv, "Arrivée du patient");
         resp.sendRedirect(req.getContextPath() + "/patient?action=historique");

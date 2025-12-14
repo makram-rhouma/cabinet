@@ -90,6 +90,9 @@
 	        <a href="${pageContext.request.contextPath}/secretaire?action=patientsArrives" class="btn btn-primary me-2">
 	            <i class="bi bi-person-walking me-1" aria-hidden="true"></i>Patients arrivés
 	        </a>
+	        <a href="${pageContext.request.contextPath}/secretaire?action=creneaux" class="btn btn-primary me-2">
+	            <i class="bi bi-calendar2-week me-1" aria-hidden="true"></i>Gestion des créneaux
+	        </a>
 	        <a href="${pageContext.request.contextPath}/secretaire?action=rechercherPatient" class="btn btn-secondary">
 	            <i class="bi bi-search me-1" aria-hidden="true"></i>Rechercher un patient
 	        </a>

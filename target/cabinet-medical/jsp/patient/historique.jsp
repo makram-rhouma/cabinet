@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ page import="java.util.*,org.projet.cabinet.model.*" %>
+<%@ page import="java.util.*,java.time.*,org.projet.cabinet.model.*" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,6 +62,136 @@
 		</div>
 	</div>
 
+	<%
+		List<RendezVous> rdvs = (List<RendezVous>) request.getAttribute("rendezVous");
+		List<Visite> visites = (List<Visite>) request.getAttribute("visites");
+		Set<Integer> idsRdvArrives = new HashSet<Integer>();
+		if (visites != null) {
+			for (Visite v : visites) {
+				RendezVous vr = (v != null) ? v.getRendezVous() : null;
+				if (vr != null && vr.getId() > 0) {
+					idsRdvArrives.add(vr.getId());
+				}
+			}
+		}
+	%>
+
+	<div class="row g-4 mt-1">
+		<div class="col-12">
+			<div class="card card-elevated">
+				<div class="card-body">
+					<h5 class="card-title">Bilans</h5>
+					<div class="table-responsive">
+						<table class="table table-sm align-middle table-modern">
+							<thead>
+							<tr>
+								<th>Date</th>
+								<th>M&eacute;decin</th>
+								<th>Motif</th>
+								<th>Diagnostic</th>
+							</tr>
+							</thead>
+							<tbody>
+							<%
+								List<Bilan> bilans = (List<Bilan>) request.getAttribute("bilans");
+								if (bilans != null && !bilans.isEmpty()) {
+									for (Bilan b : bilans) {
+							%>
+							<tr>
+								<td><%= (b.getDateBilan() != null) ? b.getDateBilan() : "-" %></td>
+								<td><%= (b.getMedecin() != null) ? (b.getMedecin().getNom() + " " + b.getMedecin().getPrenom()) : "-" %></td>
+								<td><%= (b.getMotif() != null) ? b.getMotif() : "-" %></td>
+								<td><%= (b.getDiagnostic() != null) ? b.getDiagnostic() : "-" %></td>
+							</tr>
+							<%
+									}
+								} else {
+							%>
+							<tr>
+								<td colspan="4">
+									<div class="app-empty-state">
+										<div class="app-empty-state-icon">
+											<i class="bi bi-file-earmark-medical" aria-hidden="true"></i>
+										</div>
+										<p class="mb-0">Aucun bilan pour le moment.</p>
+									</div>
+								</td>
+							</tr>
+							<% } %>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row g-4 mt-1">
+		<div class="col-12">
+			<div class="card card-elevated">
+				<div class="card-body">
+					<h5 class="card-title">Actions</h5>
+					<p class="text-muted small mb-3">Signalez votre arriv&eacute;e uniquement lorsque vous &ecirc;tes pr&eacute;sent au cabinet (rendez-vous confirm&eacute;).</p>
+					<div class="table-responsive">
+						<table class="table table-sm align-middle table-modern">
+							<thead>
+							<tr>
+								<th>Date</th>
+								<th>Heure</th>
+								<th class="text-end">Action</th>
+							</tr>
+							</thead>
+							<tbody>
+							<%
+								LocalDate aujourdHui = LocalDate.now();
+								boolean auMoinsUneAction = false;
+								if (rdvs != null) {
+									for (RendezVous r : rdvs) {
+										String statutRdv = (r.getStatut() != null) ? r.getStatut().name() : null;
+										boolean estConfirme = "CONFIRME".equals(statutRdv);
+										boolean estAujourdHui = (r.getDateRdv() != null) && r.getDateRdv().isEqual(aujourdHui);
+										boolean dejaArrive = (r.getId() > 0) && idsRdvArrives.contains(r.getId());
+										if (estConfirme && estAujourdHui && !dejaArrive) {
+											auMoinsUneAction = true;
+							%>
+							<tr>
+								<td><%= r.getDateRdv() %></td>
+								<td><%= r.getHeureRdv() %></td>
+								<td class="text-end">
+									<form method="post" action="${pageContext.request.contextPath}/patient" class="d-inline">
+										<input type="hidden" name="action" value="signalerArrivee">
+										<input type="hidden" name="idRendezVous" value="<%= r.getId() %>">
+										<button type="submit" class="btn btn-sm btn-success">
+											<i class="bi bi-person-walking me-1" aria-hidden="true"></i>Je suis arriv&eacute;
+										</button>
+									</form>
+								</td>
+							</tr>
+							<%
+									}
+								}
+								}
+								if (!auMoinsUneAction) {
+							%>
+							<tr>
+								<td colspan="3">
+									<div class="app-empty-state">
+										<div class="app-empty-state-icon">
+											<i class="bi bi-person-check" aria-hidden="true"></i>
+										</div>
+										<p class="mb-0">Aucune action disponible pour aujourd'hui.</p>
+									</div>
+								</td>
+							</tr>
+							<% } %>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<div class="row g-4">
 		<div class="col-lg-6">
 			<div class="card card-elevated">
@@ -78,7 +208,7 @@
 							</tr>
 							</thead>
 							<tbody>
-							<% List<RendezVous> rdvs = (List<RendezVous>) request.getAttribute("rendezVous");
+							<% 
 							   if (rdvs != null && !rdvs.isEmpty()) {
 							       for (RendezVous r : rdvs) { %>
 					<tr>
@@ -122,16 +252,11 @@
 					</td>
 					<td>
 						<%
-							boolean peutSignalerArrivee = "CONFIRME".equals(statut);
-							if (peutSignalerArrivee) {
+							if (r != null && r.getId() > 0 && idsRdvArrives.contains(r.getId())) {
 						%>
-						<form method="post" action="${pageContext.request.contextPath}/patient">
-							<input type="hidden" name="action" value="signalerArrivee">
-							<input type="hidden" name="idRendezVous" value="<%= r.getId() %>">
-							<button type="submit" class="btn btn-sm btn-success">
-								<i class="bi bi-person-walking me-1" aria-hidden="true"></i>Je suis arriv&eacute;
-							</button>
-						</form>
+						<span class="badge bg-success">
+							<i class="bi bi-person-check me-1" aria-hidden="true"></i>Arriv&eacute;e signal&eacute;e
+						</span>
 						<%
 							} else {
 						%>
@@ -174,8 +299,7 @@
 							</tr>
 							</thead>
 							<tbody>
-							<% List<Visite> visites = (List<Visite>) request.getAttribute("visites");
-							   if (visites != null && !visites.isEmpty()) {
+							<% if (visites != null && !visites.isEmpty()) {
 							       for (Visite v : visites) { %>
 								<tr>
 									<td><%= v.getDateVisite() %></td>

@@ -2,6 +2,7 @@ package org.projet.cabinet.servlet;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -11,12 +12,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.projet.cabinet.model.*;
+import org.projet.cabinet.service.CreneauService;
 import org.projet.cabinet.service.PatientService;
 import org.projet.cabinet.service.RendezVousService;
 import org.projet.cabinet.service.VisiteService;
 
 public class SecretaireServlet extends HttpServlet {
 
+    private CreneauService creneauService;
     private VisiteService visiteService;
     private RendezVousService rendezVousService;
     private PatientService patientService;
@@ -24,6 +27,7 @@ public class SecretaireServlet extends HttpServlet {
     @Override
     public void init() {
         ServletContext c = getServletContext();
+        this.creneauService = new CreneauService(c);
         this.visiteService = new VisiteService(c);
         this.rendezVousService = new RendezVousService(c);
         this.patientService = new PatientService(c);
@@ -40,6 +44,9 @@ public class SecretaireServlet extends HttpServlet {
         switch (action) {
             case "patientsArrives":
                 afficherPatientsArrives(req, resp);
+                break;
+            case "creneaux":
+                afficherGestionCreneaux(req, resp);
                 break;
             case "rechercherPatient":
                 afficherRecherchePatient(req, resp);
@@ -58,10 +65,94 @@ public class SecretaireServlet extends HttpServlet {
             enregistrerVisite(req, resp);
         } else if ("confirmerRdv".equals(action)) {
             confirmerRdv(req, resp);
+        } else if ("ajouterCreneauxJournee".equals(action)) {
+            ajouterCreneauxJournee(req, resp);
+        } else if ("supprimerCreneauxJournee".equals(action)) {
+            supprimerCreneauxJournee(req, resp);
+        } else if ("modifierCreneau".equals(action)) {
+            modifierCreneau(req, resp);
+        } else if ("supprimerCreneau".equals(action)) {
+            supprimerCreneau(req, resp);
         } else if ("rechercherPatient".equals(action)) {
             rechercherPatient(req, resp);
         } else {
             doGet(req, resp);
+        }
+    }
+
+    private void afficherGestionCreneaux(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        String dateStr = req.getParameter("date");
+        LocalDate dateCreneau = !isBlank(dateStr) ? LocalDate.parse(dateStr) : LocalDate.now();
+        req.setAttribute("dateCreneau", dateCreneau);
+        req.setAttribute("creneauxJournee", creneauService.trouverParDate(dateCreneau));
+        req.getRequestDispatcher("/jsp/secretaire/creneaux.jsp").forward(req, resp);
+    }
+
+    private void ajouterCreneauxJournee(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        LocalDate dateCreneau = LocalDate.parse(req.getParameter("dateCreneau"));
+        LocalTime heureDebut = LocalTime.parse(req.getParameter("heureDebut"));
+        LocalTime heureFin = LocalTime.parse(req.getParameter("heureFin"));
+        int dureeMinutes = Integer.parseInt(req.getParameter("dureeMinutes"));
+        try {
+            if (!heureFin.isAfter(heureDebut)) {
+                throw new IllegalArgumentException("L'heure de fin doit être après l'heure de début");
+            }
+            creneauService.ajouterCreneauxJournee(dateCreneau, heureDebut, heureFin, dureeMinutes);
+            resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau);
+        } catch (RuntimeException e) {
+            resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau + "&erreur=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+        }
+    }
+
+    private void supprimerCreneauxJournee(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        LocalDate dateCreneau = LocalDate.parse(req.getParameter("dateCreneau"));
+        creneauService.supprimerDisponiblesParDate(dateCreneau);
+        resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau);
+    }
+
+    private void modifierCreneau(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        LocalDate dateCreneau = LocalDate.parse(req.getParameter("dateCreneau"));
+        int idCreneau = Integer.parseInt(req.getParameter("idCreneau"));
+        int dureeMinutes = Integer.parseInt(req.getParameter("dureeMinutes"));
+        try {
+            Creneau existant = creneauService.trouverParId(idCreneau);
+            if (existant == null) {
+                throw new IllegalArgumentException("Créneau introuvable");
+            }
+            if (!existant.isDisponible()) {
+                throw new IllegalArgumentException("Impossible de modifier un créneau déjà réservé");
+            }
+            if (dureeMinutes <= 0) {
+                throw new IllegalArgumentException("Durée invalide");
+            }
+            existant.setDureeMinutes(dureeMinutes);
+            creneauService.modifier(existant);
+            resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau);
+        } catch (RuntimeException e) {
+            resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau + "&erreur=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+        }
+    }
+
+    private void supprimerCreneau(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        LocalDate dateCreneau = LocalDate.parse(req.getParameter("dateCreneau"));
+        int idCreneau = Integer.parseInt(req.getParameter("idCreneau"));
+        try {
+            Creneau existant = creneauService.trouverParId(idCreneau);
+            if (existant == null) {
+                throw new IllegalArgumentException("Créneau introuvable");
+            }
+            if (!existant.isDisponible()) {
+                throw new IllegalArgumentException("Impossible de supprimer un créneau déjà réservé");
+            }
+            creneauService.supprimer(idCreneau);
+            resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau);
+        } catch (RuntimeException e) {
+            resp.sendRedirect(req.getContextPath() + "/secretaire?action=creneaux&date=" + dateCreneau + "&erreur=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
         }
     }
 
